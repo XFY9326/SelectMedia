@@ -2,11 +2,12 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.0"
+    buildToolsVersion '25.0.3'
 
     defaultConfig {
         applicationId "tool.xfy9326.selectmedia"
-        minSdkVersion 10
+        minSdkVersion 14
+        //noinspection OldTargetApi
         targetSdkVersion 21
         versionCode 1
         versionName "1.0"
