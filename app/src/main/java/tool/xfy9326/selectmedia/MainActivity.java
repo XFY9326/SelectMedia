@@ -4,10 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +12,6 @@ import android.provider.MediaStore;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 
 //Made By XFY9326
 //2017-10-12
@@ -25,9 +20,10 @@ public class MainActivity extends Activity
 {
 	private static final int RESULT_CODE = 1;
 	private static final int MSG = 2;
+	
+	//false:send uri  true:copy file
 	private boolean file_mode = false;
 	private File file;
-	private int file_type = 0;
 	private AlertDialog load;
 	private Intent asset_intent;
 	private Handler process = new Handler(){
@@ -40,6 +36,8 @@ public class MainActivity extends Activity
 				load.cancel();
 				setResult(RESULT_OK, asset_intent);
 				finish();
+				System.gc();
+
 			}
 			super.handleMessage(msg);
 		}
@@ -50,7 +48,6 @@ public class MainActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-		getData();
 		startSelect();
     }
 
@@ -65,57 +62,40 @@ public class MainActivity extends Activity
 				if (file_mode)
 				{
 					loading();
-					if (file_type == 0)
-					{
-						savePicToFile();
-					}
-					else if (file_type == 1)
-					{
-						saveRecToFile();
-					}
+					saveMediaToFile();
 				}
 				else
 				{
 					setResult(RESULT_OK, data);
 					finish();
+					System.gc();
 				}
 			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
-	private void getData()
+	//Open picture or video selector
+	private void startSelect()
 	{
-		Intent intent = getIntent();
-		Uri uri = intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
+		Intent base_intent = getIntent();
+		Intent new_intent = new Intent();
+		Uri uri = base_intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
 		if (uri != null)
 		{
 			file_mode = true;
 			file = new File(UriMethod.getUriAbsolutePath(this, uri));
 		}
-		if (intent.getAction().equals(MediaStore.ACTION_IMAGE_CAPTURE) || intent.getAction().equals(MediaStore.ACTION_IMAGE_CAPTURE_SECURE))
+		if (base_intent.getAction().equals(MediaStore.ACTION_IMAGE_CAPTURE) || base_intent.getAction().equals(MediaStore.ACTION_IMAGE_CAPTURE_SECURE))
 		{
-			file_type = 0;
+			new_intent.setType("image/*");
 		}
-		else if (intent.getAction().equals(MediaStore.ACTION_VIDEO_CAPTURE))
+		else if (base_intent.getAction().equals(MediaStore.ACTION_VIDEO_CAPTURE))
 		{
-			file_type = 1;
+			new_intent.setType("video/*");
 		}
-	}
-
-	private void startSelect()
-	{
-		Intent intent = new Intent();
-		if (file_type == 0)
-		{
-			intent.setType("image/*");
-		}
-		else if (file_type == 1)
-		{
-			intent.setType("video/*");
-		}
-		intent.setAction(Intent.ACTION_GET_CONTENT);
-		startActivityForResult(intent, RESULT_CODE);
+		new_intent.setAction(Intent.ACTION_GET_CONTENT);
+		startActivityForResult(new_intent, RESULT_CODE);
 	}
 
 	private void loading()
@@ -127,37 +107,9 @@ public class MainActivity extends Activity
 		load = dialog.show();
 	}
 
-	private void savePicToFile()
+	private void saveMediaToFile()
 	{
-		Thread t = new Thread(new Runnable(){
-				public void run()
-				{
-					Uri uri = asset_intent.getData();
-					try
-					{
-						Bitmap bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(uri));
-						if (file != null)
-						{
-							bitmap = rotaingImageView(readPictureDegree(UriMethod.getUriAbsolutePath(MainActivity.this, uri)), bitmap);
-							FileOutputStream out = new FileOutputStream(file);
-							bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-							out.flush();
-							out.close();
-						}
-					}
-					catch (Exception e)
-					{
-						e.printStackTrace();
-					}
-					process.sendEmptyMessage(MSG);
-				}
-			});
-		t.start();
-	}
-
-	private void saveRecToFile()
-	{
-		Thread t = new Thread(new Runnable(){
+		new Thread(new Runnable(){
 				public void run()
 				{
 					Uri uri = asset_intent.getData();
@@ -185,42 +137,7 @@ public class MainActivity extends Activity
 					}
 					process.sendEmptyMessage(MSG);
 				}
-			});
-		t.start();
-	}
-
-	private static int readPictureDegree(String path)
-	{
-        int degree  = 0;
-        try
-		{
-			ExifInterface exifInterface = new ExifInterface(path);
-			int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-			switch (orientation)
-			{
-                case ExifInterface.ORIENTATION_ROTATE_90:
-					degree = 90;
-					break;
-                case ExifInterface.ORIENTATION_ROTATE_180:
-					degree = 180;
-					break;
-                case ExifInterface.ORIENTATION_ROTATE_270:
-					degree = 270;
-					break;
-			}
-        }
-		catch (IOException e)
-		{
-			e.printStackTrace();
-        }
-        return degree;
-	}
-
-	private static Bitmap rotaingImageView(int angle , Bitmap bitmap)
-	{
-		Matrix matrix = new Matrix();
-		matrix.postRotate(angle);
-		return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+			}).start();
 	}
 
 }
