@@ -1,4 +1,4 @@
-package tool.xfy9326.selectpicture;
+package tool.xfy9326.selectmedia;
 
 import android.app.Activity;
 import android.content.ContentUris;

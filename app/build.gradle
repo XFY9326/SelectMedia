@@ -5,7 +5,7 @@ android {
     buildToolsVersion "21.1.0"
 
     defaultConfig {
-        applicationId "tool.xfy9326.selectpicture"
+        applicationId "tool.xfy9326.selectmedia"
         minSdkVersion 10
         targetSdkVersion 21
         versionCode 1

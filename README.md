@@ -1,2 +1,2 @@
-# SelectPicture
-Selecting pictures instead of taking photoes
+# SelectMedia
+可以通过这个App直接选择媒体而不是必须现场拍摄或录像
