@@ -11,7 +11,7 @@ import android.provider.MediaStore;
 
 class UriMethod {
 
-    static String getUriAbsolutePath(Activity context, Uri imageUri) {
+    static String getUriAbsolutePath(Activity context, Uri imageUri) throws IllegalArgumentException {
         if (context == null || imageUri == null)
             return null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(context, imageUri)) {
@@ -62,7 +62,8 @@ class UriMethod {
                 int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
-        } finally {
+        }
+		finally {
             if (cursor != null)
                 cursor.close();
         }
