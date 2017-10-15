@@ -30,16 +30,28 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == RESULT_CODE && data != null) {
-			if (file_mode) {
-				loading(data);
-				saveMediaToFile(data);
-			} else {
-				exit(data);
+		if (resultCode == RESULT_OK) {
+			if (requestCode == RESULT_CODE && data != null) {
+				if (file_mode) {
+					loading(data);
+					saveMediaToFile(data);
+				} else {
+					exit(data);
+				}
 			}
-        }
+		} else {
+			onBackPressed();
+		}
         super.onActivityResult(requestCode, resultCode, data);
     }
+
+	@Override
+	public void onBackPressed() {
+		setResult(RESULT_CANCELED);
+		finish();
+		System.gc();
+		super.onBackPressed();
+	}
 
     //Open picture or video selector
     private void startSelect() {
