@@ -62,8 +62,7 @@ class UriMethod {
                 int index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(index);
             }
-        }
-		finally {
+        } finally {
             if (cursor != null)
                 cursor.close();
         }
