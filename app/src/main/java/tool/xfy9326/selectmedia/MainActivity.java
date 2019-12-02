@@ -2,42 +2,45 @@ package tool.xfy9326.selectmedia;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.app.Dialog;
 import android.content.Intent;
-import android.content.res.AssetFileDescriptor;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import androidx.annotation.NonNull;
 
-//Made By XFY9326
-//2017-10-12
+/**
+ * @author xfy9326
+ */
 
 public class MainActivity extends Activity {
-    private static final int RESULT_CODE = 1;
-    //false:send uri  true:copy file
-    private boolean file_mode = false;
-    private File select_file;
-    private AlertDialog load;
+    private static final String MIME_IMAGE = "image/*";
+    private static final String MIME_VIDEO = "video/*";
+    private static final int MEDIA_SELECTOR_RESULT_CODE = 1;
+
+    private Uri outputMediaUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startSelect();
+        if (BaseMethods.hasStoragePermission(this)) {
+            launchMediaSelector();
+        } else {
+            BaseMethods.requestStoragePermission(this);
+        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == RESULT_CODE && data != null) {
-                if (file_mode) {
-                    loading(data);
-                    saveMediaToFile(data);
+            if (requestCode == MEDIA_SELECTOR_RESULT_CODE && data != null) {
+                if (outputMediaUri != null) {
+                    saveMediaToExtraFile(data.getData(), showFileTransferLoadingDialog(data));
                 } else {
-                    exit(data);
+                    exitWithResult(data);
                 }
             }
         } else {
@@ -47,81 +50,68 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == BaseMethods.STORAGE_PERMISSION_REQUEST_CODE) {
+            boolean isGrantSuccess = true;
+            for (int grantResult : grantResults) {
+                if (grantResult != PackageManager.PERMISSION_GRANTED) {
+                    isGrantSuccess = false;
+                    break;
+                }
+            }
+            if (isGrantSuccess) {
+                launchMediaSelector();
+            } else {
+                Toast.makeText(this, R.string.permission_grant_failed, Toast.LENGTH_SHORT).show();
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
     public void onBackPressed() {
         setResult(RESULT_CANCELED);
         finish();
-        System.gc();
         super.onBackPressed();
     }
 
-    //Open picture or video selector
-    private void startSelect() {
-        Intent base_intent = getIntent();
-        Intent new_intent = new Intent();
-        Uri uri = base_intent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
-        if (uri != null) {
-            file_mode = true;
-            try {
-                String path = UriMethod.getUriAbsolutePath(this, uri);
-                select_file = new File(path);
-            } catch (IllegalArgumentException e) {
-                e.printStackTrace();
-                file_mode = false;
+    private void launchMediaSelector() {
+        Intent contentIntent = getIntent();
+        String contentAction = contentIntent.getAction();
+        this.outputMediaUri = contentIntent.getParcelableExtra(MediaStore.EXTRA_OUTPUT);
+        if (contentAction != null) {
+            Intent mediaSelectIntent = new Intent(Intent.ACTION_GET_CONTENT);
+            if (contentAction.equals(MediaStore.ACTION_IMAGE_CAPTURE) || contentAction.equals(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)) {
+                mediaSelectIntent.setType(MIME_IMAGE);
+            } else if (contentAction.equals(MediaStore.ACTION_VIDEO_CAPTURE)) {
+                mediaSelectIntent.setType(MIME_VIDEO);
             }
+            mediaSelectIntent.addCategory(Intent.CATEGORY_OPENABLE);
+            startActivityForResult(mediaSelectIntent, MEDIA_SELECTOR_RESULT_CODE);
         }
-        if (base_intent.getAction().equals(MediaStore.ACTION_IMAGE_CAPTURE) || base_intent.getAction().equals(MediaStore.ACTION_IMAGE_CAPTURE_SECURE)) {
-            new_intent.setType("image/*");
-        } else if (base_intent.getAction().equals(MediaStore.ACTION_VIDEO_CAPTURE)) {
-            new_intent.setType("video/*");
+    }
+
+    private Dialog showFileTransferLoadingDialog(final Intent resultIntent) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.loading);
+        builder.setMessage(getString(R.string.loading_msg, outputMediaUri.toString()));
+        builder.setCancelable(false);
+        builder.setOnCancelListener(dialog1 -> exitWithResult(resultIntent));
+        return builder.show();
+    }
+
+    private void saveMediaToExtraFile(Uri mediaUri, Dialog loadingDialog) {
+        if (mediaUri != null && outputMediaUri != null) {
+            int maximumBufferSize = (int) (BaseMethods.getSystemAvailableMemorySize(this) / 10);
+            if (maximumBufferSize < 1024) {
+                maximumBufferSize = 1024;
+            }
+            new TransferMediaAsync(getContentResolver(), loadingDialog, maximumBufferSize).execute(mediaUri, outputMediaUri);
         }
-        new_intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(new_intent, RESULT_CODE);
     }
 
-    private void loading(final Intent asset_intent) {
-        AlertDialog.Builder dialog = new AlertDialog.Builder(this);
-        dialog.setTitle(R.string.loading);
-        dialog.setMessage(getString(R.string.loading_msg) + select_file.getAbsolutePath());
-        dialog.setCancelable(false);
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-            @Override
-            public void onCancel(DialogInterface dialog) {
-                exit(asset_intent);
-            }
-        });
-        load = dialog.show();
-    }
-
-    private void saveMediaToFile(final Intent asset_intent) {
-        new Thread(new Runnable() {
-            public void run() {
-                Uri uri = asset_intent.getData();
-                try {
-                    AssetFileDescriptor afd = getContentResolver().openAssetFileDescriptor(uri, "r");
-                    if (afd != null && select_file != null) {
-                        FileInputStream in = afd.createInputStream();
-                        FileOutputStream out = new FileOutputStream(select_file);
-                        byte[] buff = new byte[1024];
-                        int len;
-                        while ((len = in.read(buff)) > 0) {
-                            out.write(buff, 0, len);
-                        }
-                        in.close();
-                        out.flush();
-                        out.close();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                load.cancel();
-            }
-        }).start();
-    }
-
-    private void exit(Intent asset_intent) {
-        setResult(RESULT_OK, asset_intent);
+    private void exitWithResult(Intent resultIntent) {
+        setResult(RESULT_OK, resultIntent);
         finish();
-        System.gc();
     }
-
 }
