@@ -1,13 +1,22 @@
 # SelectMedia
 Select media from File Explorer instead of using system camera application.  
   
-#### Attention: ONLY CAN INSTEAD OF SYSTEM CAMERA INTENT
+### Attention: ONLY CAN INSTEAD OF SYSTEM CAMERA INTENT
 
-#### Download
-For China User: [CoolApk](https://www.coolapk.com/apk/163965)  
-For Global User: [Google Play](https://play.google.com/store/apps/details?id=tool.xfy9326.selectmedia)  
+-----  
 
-#### License
+### Download
+
+#### Github release
+[Latest Release](https://github.com/XFY9326/SelectMedia/releases/latest)
+
+#### In App Store
+For China User:  [CoolApk](https://www.coolapk.com/apk/163965)  
+For Global User:  [Google Play](https://play.google.com/store/apps/details?id=tool.xfy9326.selectmedia)  
+
+-----  
+
+### License
 
     SelectMedia Android Application
     Copyright (C) 2019  XFY9326
