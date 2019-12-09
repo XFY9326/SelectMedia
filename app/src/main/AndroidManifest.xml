@@ -17,7 +17,6 @@
             android:excludeFromRecents="true"
             android:label="@string/app_name"
             android:launchMode="singleInstance"
-            android:permission="android.permission.CAMERA"
             android:taskAffinity=""
             android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
             <intent-filter>
