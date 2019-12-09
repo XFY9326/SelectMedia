@@ -1,5 +1,5 @@
 # SelectMedia
-Select media from File Explorer instead of using system camera application.  
+Select media from file explorer or album instead of using system camera application.   
   
 ### Attention: ONLY CAN INSTEAD OF SYSTEM CAMERA INTENT
 
