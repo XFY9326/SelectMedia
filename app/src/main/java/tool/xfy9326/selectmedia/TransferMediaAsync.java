@@ -32,7 +32,13 @@ class TransferMediaAsync extends AsyncTask<Uri, Void, Void> {
                 if (inputFileDescriptor != null && outputFileDescriptor != null) {
                     try (FileChannel inputChannel = new FileInputStream(inputFileDescriptor.getFileDescriptor()).getChannel();
                          FileChannel outputChannel = new FileOutputStream(outputFileDescriptor.getFileDescriptor()).getChannel()) {
-                        outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+                        long size = inputChannel.size();
+                        while (size > 0) {
+                            long count = outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
+                            if (count > 0) {
+                                size -= count;
+                            }
+                        }
                     }
                 }
             } catch (IOException e) {
