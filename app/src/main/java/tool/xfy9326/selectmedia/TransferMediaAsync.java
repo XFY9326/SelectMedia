@@ -1,37 +1,33 @@
 package tool.xfy9326.selectmedia;
 
-import android.app.Dialog;
 import android.content.ContentResolver;
+import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.os.ParcelFileDescriptor;
 
 import androidx.annotation.NonNull;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.channels.FileChannel;
 
-class TransferMediaAsync extends AsyncTask<Uri, Void, Void> {
+class TransferMediaAsync extends AsyncTask<Uri, Void, Boolean> {
     private static final String FILE_MODE_READ = "r";
     private static final String FILE_MODE_WRITE = "w";
     private final ContentResolver resolver;
-    private final Dialog loadingDialog;
+    private final TransferResultCallback callback;
 
-    TransferMediaAsync(@NonNull ContentResolver resolver, @NonNull Dialog loadingDialog) {
+    TransferMediaAsync(@NonNull ContentResolver resolver, @NonNull TransferResultCallback callback) {
         this.resolver = resolver;
-        this.loadingDialog = loadingDialog;
+        this.callback = callback;
     }
 
     @Override
-    protected Void doInBackground(Uri... uris) {
+    protected Boolean doInBackground(Uri... uris) {
         if (uris.length >= 2) {
-            try (ParcelFileDescriptor inputFileDescriptor = resolver.openFileDescriptor(uris[0], FILE_MODE_READ);
-                 ParcelFileDescriptor outputFileDescriptor = resolver.openFileDescriptor(uris[1], FILE_MODE_WRITE)) {
+            try (AssetFileDescriptor inputFileDescriptor = resolver.openAssetFileDescriptor(uris[0], FILE_MODE_READ);
+                 AssetFileDescriptor outputFileDescriptor = resolver.openAssetFileDescriptor(uris[1], FILE_MODE_WRITE)) {
                 if (inputFileDescriptor != null && outputFileDescriptor != null) {
-                    try (FileChannel inputChannel = new FileInputStream(inputFileDescriptor.getFileDescriptor()).getChannel();
-                         FileChannel outputChannel = new FileOutputStream(outputFileDescriptor.getFileDescriptor()).getChannel()) {
+                    try (FileChannel inputChannel = inputFileDescriptor.createInputStream().getChannel();
+                         FileChannel outputChannel = outputFileDescriptor.createOutputStream().getChannel()) {
                         long size = inputChannel.size();
                         while (size > 0) {
                             long count = outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
@@ -41,26 +37,22 @@ class TransferMediaAsync extends AsyncTask<Uri, Void, Void> {
                         }
                     }
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
+                return false;
             }
+            return true;
         }
-        return null;
+        return false;
     }
 
     @Override
-    protected void onCancelled() {
-        closeLoadingDialog();
+    protected void onPostExecute(Boolean bool) {
+        callback.onFinished(bool);
     }
 
-    @Override
-    protected void onPostExecute(Void aVoid) {
-        closeLoadingDialog();
+    interface TransferResultCallback {
+        void onFinished(boolean isSuccess);
     }
 
-    private void closeLoadingDialog() {
-        if (loadingDialog.isShowing()) {
-            loadingDialog.cancel();
-        }
-    }
 }

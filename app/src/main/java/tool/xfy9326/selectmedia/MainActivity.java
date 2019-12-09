@@ -1,8 +1,6 @@
 package tool.xfy9326.selectmedia;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -42,19 +40,20 @@ public class MainActivity extends Activity {
             if (requestCode == MEDIA_SELECTOR_RESULT_CODE && data != null) {
                 if (data.getData() != null) {
                     if (outputMediaUri != null) {
-                        saveMediaToExtraFile(data.getData(), showFileTransferLoadingDialog(data.getData()));
+                        saveMediaToExtraFile(data.getData());
                     } else {
                         exitWithResult(data.getData());
                     }
                 } else {
                     Toast.makeText(this, R.string.no_select_media, Toast.LENGTH_SHORT).show();
-                    finish();
+                    onBackPressed();
                 }
+            } else {
+                onBackPressed();
             }
         } else {
             onBackPressed();
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -73,7 +72,6 @@ public class MainActivity extends Activity {
                 Toast.makeText(this, R.string.permission_grant_failed, Toast.LENGTH_SHORT).show();
             }
         }
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
@@ -127,25 +125,22 @@ public class MainActivity extends Activity {
         }
     }
 
-    private Dialog showFileTransferLoadingDialog(final Uri mediaUri) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.loading);
-        builder.setMessage(getString(R.string.loading_msg, outputMediaUri.toString()));
-        builder.setCancelable(false);
-        builder.setOnCancelListener(dialog1 -> exitWithResult(mediaUri));
-        return builder.show();
-    }
-
-    private void saveMediaToExtraFile(Uri mediaUri, Dialog loadingDialog) {
+    private void saveMediaToExtraFile(final Uri mediaUri) {
         if (mediaUri != null && outputMediaUri != null) {
-            new TransferMediaAsync(getContentResolver(), loadingDialog).execute(mediaUri, outputMediaUri);
+            new TransferMediaAsync(getContentResolver(), isSuccess -> {
+                if (isSuccess) {
+                    exitWithResult(mediaUri);
+                } else {
+                    Toast.makeText(MainActivity.this, R.string.media_file_transfer_error, Toast.LENGTH_SHORT).show();
+                    onBackPressed();
+                }
+
+            }).execute(mediaUri, outputMediaUri);
         }
     }
 
     private void exitWithResult(Uri mediaUri) {
-        Intent intent = new Intent();
-        intent.setData(mediaUri);
-        setResult(RESULT_OK, intent);
+        setResult(RESULT_OK, new Intent().setData(mediaUri));
         finish();
     }
 

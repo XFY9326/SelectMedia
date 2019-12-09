@@ -18,7 +18,7 @@
             android:exported="false"
             android:launchMode="singleTask"
             android:taskAffinity=""
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar" />
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
         <activity-alias
             android:name=".MainActivity.Album"

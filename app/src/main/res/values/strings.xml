@@ -7,6 +7,7 @@
     <string name="loading_msg">Transforming data now &#8230; &#8230;\nPath: %1$s</string>
     <string name="permission_grant_failed">Permission grant failed!</string>
     <string name="no_select_media">Select no media file!</string>
+    <string name="media_file_transfer_error">Media file transfer error!</string>
 </resources>
 
 

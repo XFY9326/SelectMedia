@@ -7,5 +7,6 @@
     <string name="loading_msg">正在转移数据……\n路径：%1$s</string>
     <string name="permission_grant_failed">权限授予失败！</string>
     <string name="no_select_media">未选择任何媒体文件！</string>
+    <string name="media_file_transfer_error">媒体文件传输错误！</string>
 </resources>
 
