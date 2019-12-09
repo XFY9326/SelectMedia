@@ -15,17 +15,36 @@
         <activity
             android:name=".MainActivity"
             android:excludeFromRecents="true"
-            android:label="@string/app_name"
-            android:launchMode="singleInstance"
+            android:exported="false"
+            android:launchMode="singleTask"
             android:taskAffinity=""
-            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar">
+            android:theme="@android:style/Theme.DeviceDefault.Light.Dialog.NoActionBar" />
+
+        <activity-alias
+            android:name=".MainActivity.Album"
+            android:icon="@mipmap/ic_from_album"
+            android:label="@string/from_file_album"
+            android:targetActivity=".MainActivity">
             <intent-filter>
                 <action android:name="android.media.action.IMAGE_CAPTURE" />
                 <action android:name="android.media.action.VIDEO_CAPTURE" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".MainActivity.FileExplorer"
+            android:icon="@mipmap/ic_from_file_explorer"
+            android:label="@string/from_file_explorer"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.media.action.IMAGE_CAPTURE" />
+                <action android:name="android.media.action.VIDEO_CAPTURE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
 
     </application>
 

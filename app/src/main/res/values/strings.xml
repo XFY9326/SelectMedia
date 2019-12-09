@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Select Media</string>
+    <string name="from_file_explorer">Select media from file explorer</string>
+    <string name="from_file_album">Select media from album</string>
     <string name="loading">Loading &#8230; &#8230;</string>
     <string name="loading_msg">Transforming data now &#8230; &#8230;\nPath: %1$s</string>
     <string name="permission_grant_failed">Permission grant failed!</string>
+    <string name="no_select_media">Select no media file!</string>
 </resources>
 
 

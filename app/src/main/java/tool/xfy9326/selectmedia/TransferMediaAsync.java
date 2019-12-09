@@ -11,20 +11,15 @@ import androidx.annotation.NonNull;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
 
 class TransferMediaAsync extends AsyncTask<Uri, Void, Void> {
     private static final String FILE_MODE_READ = "r";
     private static final String FILE_MODE_WRITE = "w";
-    private final int maximumBufferSize;
     private final ContentResolver resolver;
     private final Dialog loadingDialog;
-    private ParcelFileDescriptor inputFileDescriptor = null;
-    private ParcelFileDescriptor outputFileDescriptor = null;
-    private FileInputStream fileInputStream = null;
-    private FileOutputStream fileOutputStream = null;
 
-    TransferMediaAsync(@NonNull ContentResolver resolver, @NonNull Dialog loadingDialog, int maximumBufferSize) {
-        this.maximumBufferSize = maximumBufferSize;
+    TransferMediaAsync(@NonNull ContentResolver resolver, @NonNull Dialog loadingDialog) {
         this.resolver = resolver;
         this.loadingDialog = loadingDialog;
     }
@@ -32,42 +27,16 @@ class TransferMediaAsync extends AsyncTask<Uri, Void, Void> {
     @Override
     protected Void doInBackground(Uri... uris) {
         if (uris.length >= 2) {
-            int length;
-            try {
-                inputFileDescriptor = resolver.openFileDescriptor(uris[0], FILE_MODE_READ);
-                outputFileDescriptor = resolver.openFileDescriptor(uris[1], FILE_MODE_WRITE);
+            try (ParcelFileDescriptor inputFileDescriptor = resolver.openFileDescriptor(uris[0], FILE_MODE_READ);
+                 ParcelFileDescriptor outputFileDescriptor = resolver.openFileDescriptor(uris[1], FILE_MODE_WRITE)) {
                 if (inputFileDescriptor != null && outputFileDescriptor != null) {
-                    fileInputStream = new FileInputStream(inputFileDescriptor.getFileDescriptor());
-                    fileOutputStream = new FileOutputStream(outputFileDescriptor.getFileDescriptor());
-
-                    byte[] buffer = new byte[fileInputStream.available() > maximumBufferSize ? maximumBufferSize : fileInputStream.available()];
-
-                    while ((length = fileInputStream.read(buffer)) > 0) {
-                        fileOutputStream.write(buffer, 0, length);
+                    try (FileChannel inputChannel = new FileInputStream(inputFileDescriptor.getFileDescriptor()).getChannel();
+                         FileChannel outputChannel = new FileOutputStream(outputFileDescriptor.getFileDescriptor()).getChannel()) {
+                        outputChannel.transferFrom(inputChannel, 0, inputChannel.size());
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-            } finally {
-                try {
-                    if (fileInputStream != null) {
-                        fileInputStream.close();
-                    }
-                    if (fileOutputStream != null) {
-                        fileOutputStream.flush();
-                        fileOutputStream.close();
-                    }
-
-
-                    if (inputFileDescriptor != null) {
-                        inputFileDescriptor.close();
-                    }
-                    if (outputFileDescriptor != null) {
-                        outputFileDescriptor.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         }
         return null;

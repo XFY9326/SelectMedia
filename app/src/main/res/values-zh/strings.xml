@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">选择媒体</string>
+    <string name="from_file_explorer">从文件管理器选择媒体</string>
+    <string name="from_file_album">从相册选择媒体</string>
     <string name="loading">正在加载中……</string>
     <string name="loading_msg">正在转移数据……\n路径：%1$s</string>
     <string name="permission_grant_failed">权限授予失败！</string>
+    <string name="no_select_media">未选择任何媒体文件！</string>
 </resources>
 

@@ -84,10 +84,7 @@
                                   <option name="values">
                                     <map>
                                       <entry key="backgroundAssetType" value="COLOR" />
-                                      <entry key="backgroundColor" value="f9fbff" />
                                       <entry key="foregroundAssetType" value="CLIP_ART" />
-                                      <entry key="legacyIconShape" value="CIRCLE" />
-                                      <entry key="webIconShape" value="CIRCLE" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -104,7 +101,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="09a7ff" />
-                                                <entry key="paddingPercent" value="15" />
+                                                <entry key="paddingPercent" value="25" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -115,7 +112,29 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_image_black_24dp.xml" />
+                                                <entry key="url" value="jar:file:/Applications/Android%20Studio.app/Contents/plugins/android/lib/android.jar!/images/material_design_icons/image/ic_photo_black_24dp.xml" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                      <entry key="image">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="09a7ff" />
+                                              </map>
+                                            </option>
+                                          </PersistentState>
+                                        </value>
+                                      </entry>
+                                      <entry key="text">
+                                        <value>
+                                          <PersistentState>
+                                            <option name="values">
+                                              <map>
+                                                <entry key="color" value="09a7ff" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -125,7 +144,6 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="backgroundColor" value="f9fbff" />
                                       <entry key="iconShape" value="CIRCLE" />
                                     </map>
                                   </option>
