@@ -11,7 +11,7 @@ Select media from file explorer or album instead of using system camera applicat
 [Latest Release](https://github.com/XFY9326/SelectMedia/releases/latest)
 
 #### In App Store
-For China User:  [CoolApk](https://www.coolapk.com/apk/163965)  
+For Chinese User:  [CoolApk](https://www.coolapk.com/apk/163965)  
 For Global User:  [Google Play](https://play.google.com/store/apps/details?id=tool.xfy9326.selectmedia)  
 
 -----  
