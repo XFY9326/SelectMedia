@@ -40,9 +40,9 @@ public class MainActivity extends Activity {
             if (requestCode == MEDIA_SELECTOR_RESULT_CODE && data != null) {
                 if (data.getData() != null) {
                     if (outputMediaUri != null) {
-                        saveMediaToExtraFile(data.getData());
+                        saveMediaToExtraFile(data);
                     } else {
-                        exitWithResult(data.getData());
+                        exitWithResult(data);
                     }
                 } else {
                     Toast.makeText(this, R.string.no_select_media, Toast.LENGTH_SHORT).show();
@@ -104,8 +104,8 @@ public class MainActivity extends Activity {
                     mediaSelectIntent.setAction(Intent.ACTION_OPEN_DOCUMENT);
                 } else {
                     mediaSelectIntent.setAction(Intent.ACTION_GET_CONTENT);
-                    mediaSelectIntent.addCategory(Intent.CATEGORY_OPENABLE);
                 }
+                mediaSelectIntent.addCategory(Intent.CATEGORY_OPENABLE);
             } else {
                 finish();
                 return;
@@ -125,22 +125,22 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void saveMediaToExtraFile(final Uri mediaUri) {
-        if (mediaUri != null && outputMediaUri != null) {
+    private void saveMediaToExtraFile(final Intent resultIntent) {
+        if (resultIntent.getData() != null && outputMediaUri != null) {
             new TransferMediaAsync(getContentResolver(), isSuccess -> {
                 if (isSuccess) {
-                    exitWithResult(mediaUri);
+                    exitWithResult(resultIntent);
                 } else {
                     Toast.makeText(MainActivity.this, R.string.media_file_transfer_error, Toast.LENGTH_SHORT).show();
                     onBackPressed();
                 }
 
-            }).execute(mediaUri, outputMediaUri);
+            }).execute(resultIntent.getData(), outputMediaUri);
         }
     }
 
-    private void exitWithResult(Uri mediaUri) {
-        setResult(RESULT_OK, new Intent().setData(mediaUri));
+    private void exitWithResult(Intent resultIntent) {
+        setResult(RESULT_OK, resultIntent);
         finish();
     }
 
