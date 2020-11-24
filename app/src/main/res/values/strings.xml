@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Select Media</string>
+    <string name="no_media_selected">No media file selected!</string>
+    <string name="media_transfer_failed">Media transfer failed!</string>
+    <string name="storage_permission_grant_failed">Storage permission grant failed!</string>
+</resources>
+
+

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">选择媒体</string>
+    <string name="no_media_selected">未选择任何媒体文件！</string>
+    <string name="media_transfer_failed">媒体传输失败！</string>
+    <string name="storage_permission_grant_failed">文件权限授予失败！</string>
+</resources>
+
