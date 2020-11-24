@@ -1,7 +1,9 @@
 # SelectMedia
 Select media from file explorer or album instead of using system camera application.   
   
-### Attention: ONLY CAN INSTEAD OF SYSTEM CAMERA INTENT
+### Attention: 
+- Only can simulate system camera intent
+- Not support Android 11 due to system security changes
 
 -----  
 
@@ -19,7 +21,7 @@ For Global User:  [Google Play](https://play.google.com/store/apps/details?id=to
 ### License
 
     SelectMedia Android Application
-    Copyright (C) 2019  XFY9326
+    Copyright (C) 2020  XFY9326
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
